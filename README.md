@@ -228,8 +228,8 @@ Now we can write `option`,
 
 ```c++
 namespace std {
-    struct option<Type> : 
-        operator::dereference<Type>, trans::from, trans::into
+    struct option<Type> 
+        : operator::dereference<Type>, trans::from, trans::into
     {
         Type || null data;
         
