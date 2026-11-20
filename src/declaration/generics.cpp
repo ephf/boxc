@@ -62,7 +62,7 @@ namespace declaration::generics {
         const bool parse_type_arguments) {
         if(!declaration || declaration->generic_arguments_stack.empty()) return {{}, declaration};
         // ReSharper disable once CppUseStructuredBinding
-        const auto& default_type_arguments = declaration->generic_arguments_stack[0];
+        auto& default_type_arguments = declaration->generic_arguments_stack[0];
 
         auto type_arguments =
                 parse_type_arguments && parser::thread_context.try_next('<')
@@ -71,10 +71,15 @@ namespace declaration::generics {
                 })
                 : std::vector<util::maybe_ptr<expression::const_expression>>{};
 
-        type::generics::zip_iterate(
-            type::generics::generics_iterator{default_type_arguments},
-            type::generics::generics_iterator{type_arguments},
-            [](const auto& default_argument, const auto& type_argument) {});
+        using const_expr = util::maybe_ptr<expression::const_expression>;
+
+        span_iter(default_type_arguments)
+                .flatten().zip(span_iter(type_arguments))
+                .for_each_t([](auto default_argument, auto type_argument) {});
+
+        util::iterate<const_expr>{default_type_arguments}
+                .flatten<expression::const_expression>()
+                .zip<const_expr>(util::iterate<const_expr>{type_arguments});
 
         for(auto i = 0uz; i < type_arguments.size(); i++) {
             if(i >= default_type_arguments.size()) {

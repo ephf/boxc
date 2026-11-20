@@ -32,6 +32,11 @@ namespace util {
             return pointer;
         }
 
+        // ReSharper disable once CppNonExplicitConversionOperator
+        operator T*() const noexcept {
+            return pointer;
+        }
+
         std::unique_ptr<T> owned() {
             return std::move(owned_pointer);
         }
